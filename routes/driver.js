@@ -9,7 +9,7 @@ const {
 /* Driver Onboarding */
 router.post("/register", driverOnboardingValidator, async (req, res) => {
   const { name, email, phone_number, license_number, car_number } = req.body;
-  newDriver = new Driver({
+  const newDriver = new Driver({
     name,
     email,
     phone_number,
