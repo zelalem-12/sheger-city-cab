@@ -1,80 +1,59 @@
-const { emailValidator, phoneNumberValidator } = require("../utils");
+const {
+  emailValidator,
+  phoneNumberValidator,
+  nullValidator,
+  typeValidator,
+  driverTypeValidator,
+} = require("../utils");
 
 const driverOnboardingValidator = (req, res, next) => {
   const { name, email, phone_number, license_number, car_number } = req.body;
 
   // Checking if there exist missed filed
-  const newDriver = { name, email, phone_number, license_number, car_number };
-  const missedFields = [];
-  for (const [key, value] of Object.entries(newDriver)) {
-    if (value !== false && !value) missedFields.push(key);
-  }
-
-  if (missedFields.length !== 0) {
-    let message = "";
-    const lastField = missedFields.pop();
-    message = missedFields.length
-      ? `${missedFields.toString()} and ${lastField}  are required`
-      : `${lastField} is required`;
+  const nullErrorMessage = nullValidator({
+    name,
+    email,
+    phone_number,
+    license_number,
+    car_number,
+  });
+  if (nullErrorMessage) {
     return res.status(400).send({
       status: "failure",
-      reason: message,
+      reason: nullErrorMessage,
     });
   }
 
   // Check if there exist a wrong type of required fields
-  const wrongTypedFields = [];
-  for (const [key, value] of Object.entries(newDriver)) {
-    if (key === "phone_number" && typeof value !== "number")
-      wrongTypedFields.push(key);
-    else if (key !== "phone_number" && typeof value !== "string")
-      wrongTypedFields.push(key);
-  }
-
-  if (wrongTypedFields.length !== 0) {
-    let message = "";
-
-    const phoneNumError = wrongTypedFields.splice(
-      wrongTypedFields.indexOf("phone_number"),
-      wrongTypedFields.indexOf("phone_number") === -1 ? 0 : 1
-    )[0];
-
-    const lastField = wrongTypedFields.pop();
-
-    message = phoneNumError
-      ? wrongTypedFields.length
-        ? `${wrongTypedFields.toString()} and ${lastField} should be string and phone_number should be numeric `
-        : `${
-            lastField
-              ? `${lastField} should string and phone_number should be numeric`
-              : "phone_number should be numeric"
-          }`
-      : wrongTypedFields.length
-      ? `${wrongTypedFields.toString()} and ${lastField} should be string  `
-      : `${lastField} should string`;
-
-    return res.status(400).send({
-      status: "failure",
-      reason: message,
-    });
+  const typeErrorMessage = driverTypeValidator({
+    name,
+    email,
+    phone_number,
+    license_number,
+    car_number,
+  });
+  if (typeErrorMessage) {
+    return res
+      .status(400)
+      .send({ status: "failure", reason: typeErrorMessage });
   }
 
   // Check if the email address and phone number are valid
-  let emailAndPhoneValidity = "";
+  let validityErrorMessage = "";
   if (!emailValidator(email)) {
-    emailAndPhoneValidity = "InValid Email Address";
+    validityErrorMessage = "InValid Email Address";
   }
   if (!phoneNumberValidator(phone_number)) {
-    emailAndPhoneValidity =
-      emailAndPhoneValidity +
-      `${emailAndPhoneValidity ? " and " : ""}InValid ${
+    validityErrorMessage =
+      validityErrorMessage +
+      `${validityErrorMessage ? " and " : ""}InValid ${
         phone_number.toString().length
       } digit phone number`;
   }
-  if (emailAndPhoneValidity) {
+  if (validityErrorMessage) {
     return res.status(400).send({
       status: "failure",
-      reason: emailAndPhoneValidity,
+      reason: validityErrorMessage,
     });
   }
   next();
@@ -91,42 +70,27 @@ const driverIdAndLocationValidator = (req, res, next) => {
   const driverLon = !isNaN(longitude) ? parseFloat(longitude) : longitude;
 
   // Checking if there exist missed filed
-  const missedFields = [];
-  const locationAndId = {
+  const nullErrorMessage = nullValidator({
     id: driverId,
     latitude: driverLat,
     longitude: driverLon,
-  };
-  for (const [key, value] of Object.entries(locationAndId)) {
-    if (value !== false && !value) missedFields.push(key);
-  }
-  if (missedFields.length !== 0) {
-    let message = "";
-    const lastField = missedFields.pop();
-    message = missedFields.length
-      ? `${missedFields.toString()} and ${lastField} are required`
-      : `${lastField} is required`;
+  });
+  if (nullErrorMessage) {
     return res.status(400).send({
       status: "failure",
-      reason: message,
+      reason: nullErrorMessage,
     });
   }
-
   // Check if there exist a wrong type of required fields
-  const wrongTypedFields = [];
-  for (const [key, value] of Object.entries(locationAndId)) {
-    if (typeof value !== "number") wrongTypedFields.push(key);
-  }
-
-  if (wrongTypedFields.length !== 0) {
-    let message = "";
-    const lastField = wrongTypedFields.pop();
-    message = wrongTypedFields.length
-      ? `${wrongTypedFields.toString()} and ${lastField} should be numeric`
-      : `${lastField} should be numeric`;
+  const typeErrorMessage = typeValidator({
+    id: driverId,
+    latitude: driverLat,
+    longitude: driverLon,
+  });
+  if (typeErrorMessage) {
     return res.status(400).send({
       status: "failure",
-      reason: message,
+      reason: typeErrorMessage,
     });
   }
   next();
@@ -138,37 +102,25 @@ const passengerLocationValidator = (req, res, next) => {
   const passengerLon = !isNaN(longitude) ? parseFloat(longitude) : longitude;
 
   // Checking if there exist missed filed
-  const missedFields = [];
-  const passengerLocation = { latitude: passengerLat, longitude: passengerLon };
-  for (const [key, value] of Object.entries(passengerLocation)) {
-    if (value !== false && !value) missedFields.push(key);
-  }
-  if (missedFields.length !== 0) {
-    let message = "";
-    const lastField = missedFields.pop();
-    message = missedFields.length
-      ? `${missedFields.toString()} and ${lastField} are required`
-      : `${lastField} is required`;
+  const nullErrorMessage = nullValidator({
+    latitude: passengerLat,
+    longitude: passengerLon,
+  });
+  if (nullErrorMessage) {
     return res.status(400).send({
       status: "failure",
-      reason: message,
+      reason: nullErrorMessage,
     });
   }
-
   // Check if there exist a wrong type of required fields
-  const wrongTypedFields = [];
-  for (const [key, value] of Object.entries(passengerLocation)) {
-    if (typeof value !== "number") wrongTypedFields.push(key);
-  }
-  if (wrongTypedFields.length !== 0) {
-    let message = "";
-    const lastField = wrongTypedFields.pop();
-    message = wrongTypedFields.length
-      ? `${wrongTypedFields.toString()} and ${lastField} should be numeric`
-      : `${lastField} should be numeric`;
+  const typeErrorMessage = typeValidator({
+    latitude: passengerLat,
+    longitude: passengerLon,
+  });
+  if (typeErrorMessage) {
     return res.status(400).send({
       status: "failure",
-      reason: message,
+      reason: typeErrorMessage,
     });
   }
   next();
