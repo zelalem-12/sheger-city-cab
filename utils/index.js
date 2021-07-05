@@ -24,7 +24,7 @@ const connectToDb = () => {
   }
   const mongoUrl =
     process.env.MONGODB_URL ||
-    "mongodb+srv://test_user:gJcqTdeOLk6kqsZ6@cluster0.jgafy.mongodb.net/cabSearchSystem?retryWrites=true&w=majority";
+    "mongodb+srv://test_user:gJcqTdeOLk6kqsZ6@cluster0.jgafy.mongodb.net/cabSearchSystem_production?retryWrites=true&w=majority";
   mongoose
     .connect(mongoUrl, options)
     .then(() => {
