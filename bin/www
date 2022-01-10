@@ -5,11 +5,13 @@
  */
 
 require("dotenv").config();
-const app = require("../app");
 const debug = require("debug")("express:server");
 const http = require("http");
+const mongoose = require('mongoose')
 
-const { connectToDb } = require("../utils");
+const app = require("../app");
+
+
 
 /**
  * Get port from environment and store in Express.
@@ -27,11 +29,9 @@ const server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces if the database connection is successfull
  */
-const connection = connectToDb();
-
-connection
+connectingWithDatabase()
   .on("error", console.log)
-  .on("disconnected", connectToDb)
+  .on("disconnected", connectingWithDatabase)
   .on("open", () => {
     server.listen(port);
     server.on("error", onError);
@@ -74,11 +74,9 @@ function onError(error) {
     case "EACCES":
       console.error(bind + " requires elevated privileges");
       process.exit(1);
-      break;
     case "EADDRINUSE":
       console.error(bind + " is already in use");
       process.exit(1);
-      break;
     default:
       throw error;
   }
@@ -90,7 +88,32 @@ function onError(error) {
 
 function onListening() {
   const addr = server.address();
+  console.log(server.address())
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   console.log(`Server Listening on ${bind}`);
   debug("Listening on " + bind);
 }
+
+
+/* 
+* Connecting with database  and return connecton object
+*/
+function connectingWithDatabase() {
+  const mongoUser = process.env.MONGO_USER || null;
+  const mongoPassword = process.MONGO_PASSWORD || null;
+  const options = {
+    keepAlive: 1,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  };
+
+  if (mongoUser && mongoPassword) {
+    options.auth = { user: mongoUser, password: mongoPassword };
+  }
+  const mongoUrl =
+    process.env.MONGODB_URL;
+  mongoose.connect(mongoUrl, options);
+  return mongoose.connection;
+};

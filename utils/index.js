@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const modelsName = {
   DRIVER: "Driver",
 };
@@ -8,35 +6,6 @@ const constants = {
   FARTHEST_NEARBY_CABS: 4, // The farthest Nearby driver location in kilometre
 };
 
-const connectToDb = () => {
-  const mongoUser = process.env.MONGO_USER || null;
-  const mongoPassword = process.MONGO_PASSWORD || null;
-  const options = {
-    keepAlive: 1,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  };
-
-  if (mongoUser && mongoPassword) {
-    options.auth = { user: mongoUser, password: mongoPassword };
-  }
-  const mongoUrl =
-    process.env.MONGODB_URL ||
-    "mongodb+srv://test_user:gJcqTdeOLk6kqsZ6@cluster0.jgafy.mongodb.net/cabSearchSystem_production?retryWrites=true&w=majority";
-  mongoose
-    .connect(mongoUrl, options)
-    .then(() => {
-      console.log("Database connection successful");
-    })
-    .catch((err) => {
-      console.log("Database connection failed");
-      console.log(err);
-    });
-
-  return mongoose.connection;
-};
 
 const emailValidator = (email) => {
   const emailRegex =
@@ -101,14 +70,13 @@ const driverTypeValidator = (requestBody) => {
     message = phoneNumError
       ? wrongTypedFields.length
         ? `${wrongTypedFields.toString()} and ${lastField} should be string and phone_number should be numeric `
-        : `${
-            lastField
-              ? `${lastField} should string and phone_number should be numeric`
-              : "phone_number should be numeric"
-          }`
+        : `${lastField
+          ? `${lastField} should string and phone_number should be numeric`
+          : "phone_number should be numeric"
+        }`
       : wrongTypedFields.length
-      ? `${wrongTypedFields.toString()} and ${lastField} should be string  `
-      : `${lastField} should string`;
+        ? `${wrongTypedFields.toString()} and ${lastField} should be string  `
+        : `${lastField} should string`;
 
     return message;
   }
@@ -117,7 +85,6 @@ const driverTypeValidator = (requestBody) => {
 module.exports = {
   constants,
   modelsName,
-  connectToDb,
   emailValidator,
   phoneNumberValidator,
   nullValidator,
