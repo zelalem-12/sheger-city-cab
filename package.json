@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "test": "jest --watch --detectOpenHandles"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -25,6 +26,8 @@
     }
   },
   "devDependencies": {
-    "nodemon": "^2.0.9"
+    "jest": "^27.4.7",
+    "nodemon": "^2.0.9",
+    "supertest": "^6.2.0"
   }
 }
